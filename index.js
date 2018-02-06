@@ -54,104 +54,13 @@ client.on('message', async (message) => {
 
 	switch (baseCommand) {
 		case 'hycord':
-			let helpRich = new Discord.RichEmbed()
-
-			helpRich.setTitle('Hycord Bot Information')
-
-			helpRich.setDescription('Hycord was created by [ethanent](https://ethanent.me)! Using the bot is simple!')
-
-			helpRich.setColor('#FFE11A')
-
-			helpRich.addField('!player <name>', 'Displays statistics for a player.')
-
-			helpRich.addField('!guild <name>', 'Displays statistics for a Hypixel guild.')
-
-			helpRich.setFooter('Hycord Bot | Created by ethanent', 'https://i.imgur.com/hFbNBr5.jpg')
-
-			message.channel.send(helpRich)
+			require('../commands/hycord.js');
 			break
 		case 'player':
-			if (commandArgs.length > 0) {
-				let hypixelPlayer
-
-				message.channel.startTyping()
-
-				try {
-					hypixelPlayer = (await HypixelClient.getPlayer('name', commandArgs[0])).player
-				}
-				catch (err) {
-					console.log(err)
-					message.channel.stopTyping()
-					message.channel.send('Hmm, that player doesn\'t seem to exist!')
-					return
-				}
-
-				let playerRich = new Discord.RichEmbed()
-
-				playerRich.setThumbnail('https://crafatar.com/avatars/' + (hypixelPlayer.uuid || '') + '?size=100')
-				playerRich.setTitle('Hypixel Player: ' + hypixelPlayer.displayname)
-				playerRich.setURL('https://hypixel.net/player/' + hypixelPlayer.displayname + '/')
-				playerRich.setFooter('Hycord Bot | Created by ethanent', 'https://i.imgur.com/hFbNBr5.jpg')
-				playerRich.setColor('#30DB09')
-
-                                if (hypixelPlayer.newPackageRank) {
-					HypixelRank = hypixelPlayer.monthlyPackageRank === "SUPERSTAR" ? "MVP++" : hypixelPlayer.newPackageRank;
-                                }
-				
-				playerRich.addField('Rank', (hypixelPlayer.rank || hypixelPlayer.packageRank || HypixelRank || 'None').toString().replace(/_/g, ' '), true)
-				playerRich.addField('Hypixel Level', hypixelPlayer.networkLevel || 'Not available', true)
-				playerRich.addField('Karma', hypixelPlayer.karma || 'Not available', true)
-				playerRich.addField('Client Version', hypixelPlayer.mcVersionRp || 'Not available', true)
-				playerRich.addField('First Login', hypixelPlayer.firstLogin ? moment(hypixelPlayer.firstLogin).calendar() : 'Not available', true)
-				playerRich.addField('Last Login', hypixelPlayer.lastLogin ? moment(hypixelPlayer.lastLogin).calendar() : 'Not available', true)
-
-				let playerGuild
-
-				let playerGuildID = (await HypixelClient.findGuild('member', hypixelPlayer.uuid)).guild
-
-				if (playerGuildID) {
-					playerGuild = (await HypixelClient.getGuild(playerGuildID)).guild
-				}
-
-				playerRich.addField('Guild', (playerGuild ? '[' + playerGuild.name + ' [' + playerGuild.tag + ']' + '](https://hypixel.net/guilds/' + playerGuild._id + '/)' : 'None'))
-
-				message.channel.stopTyping()
-
-				message.channel.send(playerRich)
-			}
-			else {
-				message.channel.send('Usage: `!player <name>`')
-			}
+			require('../commands/player.js');
 			break
 		case 'guild':
-			if (commandArgs.length > 0) {
-				message.channel.startTyping()
-				let targetGuild = await HypixelClient.findGuild('name', message.content.split('!' + baseCommand + ' ')[1])
-				message.channel.stopTyping()
-				if (targetGuild.guild === null) {
-					message.channel.send('Hmm, that guild doesn\'t seem to exist!')
-					return
-				}
-
-				let guildData = (await HypixelClient.getGuild(targetGuild.guild)).guild
-
-				let guildRich = new Discord.RichEmbed()
-
-				guildRich.setThumbnail('https://hypixel.net/data/guild_banners/100x200/' + guildData._id + '.png')
-				guildRich.setTitle('Hypixel Guild: ' + guildData.name + ' [' + guildData.tag + ']')
-				guildRich.setFooter('Hycord Bot | Created by ethanent', 'https://i.imgur.com/hFbNBr5.jpg')
-				guildRich.setColor('#2DC7A1')
-				guildRich.setURL('https://hypixel.net/guilds/' + guildData._id + '/')
-
-				guildRich.addField('Member Count', guildData.members.length, true)
-				guildRich.addField('Created', moment(guildData.created).calendar(), true)
-				guildRich.addField('Coins', guildData.coins, true)
-
-				message.channel.send(guildRich)
-			}
-			else {
-				message.channel.send('Usage: `!guild <name>`')
-			}
+			require('../commands/guild.js');
 			break
 	}
 })
